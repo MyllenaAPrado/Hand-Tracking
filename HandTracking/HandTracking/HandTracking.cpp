@@ -6,7 +6,7 @@
 
 int main()
 {
-	int flag_roi = 0;
+
 	cv::namedWindow("capture", cv::WINDOW_AUTOSIZE);
 	cv::namedWindow("segmentation", cv::WINDOW_AUTOSIZE);
 	cv::namedWindow("contours", cv::WINDOW_AUTOSIZE);
@@ -19,33 +19,31 @@ int main()
 		std::cerr << "Couldn't op en capture." << std::endl;
 		return -1;
 	}
-	int count = 0;
-	cv::UMat bgr_frame, img_filter;
+
+	cv::UMat bgr_frame;
 	Segmentation seg;
+
+	//set the reference frame for do the segmentation
 	cap >> bgr_frame;
 	seg.setReferenceFrame(bgr_frame);
 
 	for (;;)
 	{
 		cap >> bgr_frame;
-
-		//cv::Rect rect = cv::Rect(80, 150, 150, 190);
-		//cv::rectangle(bgr_frame, rect, cv::Scalar(255, 0, 0), 1, 8, 0);
-
 		if (bgr_frame.empty()) break;
-
 
 		cv::imshow("capture", bgr_frame);
 
-		char c = cv::waitKey(10);
-		if (c == 27) break;
-
+		//identify the pixels who change between the current frame and the reference frame
 		seg.identifyMovingHand(bgr_frame);
-
 		cv::imshow("segmentation", seg.getHandSegmentation());
 
+		//identify the bigger contour in the segmentation image
 		cv::imshow("contours", seg.identifyContours());
 
+
+		char c = cv::waitKey(10);
+		if (c == 27) break;
 	}
 
 	cap.release();

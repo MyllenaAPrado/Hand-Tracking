@@ -22,6 +22,7 @@ public:
 	}
 	void identifyMovingHand(cv::UMat frame);
 	cv::UMat identifyContours();
+
 };
 
 #endif
