@@ -139,10 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Fingers.cpp" />
     <ClCompile Include="HandTracking.cpp" />
     <ClCompile Include="Segmentation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Fingers.h" />
     <ClInclude Include="Segmentation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

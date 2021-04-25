@@ -2,6 +2,7 @@
 #include <stdlib.h>   
 #include <iostream>
 #include "Segmentation.h"
+#include "Fingers.h"
 #include "windows.h" 
 
 int main()
@@ -10,6 +11,7 @@ int main()
 	cv::namedWindow("capture", cv::WINDOW_AUTOSIZE);
 	cv::namedWindow("segmentation", cv::WINDOW_AUTOSIZE);
 	cv::namedWindow("contours", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("fingers", cv::WINDOW_AUTOSIZE);
 
 	cv::VideoCapture cap;
 	cap.open(0);
@@ -22,7 +24,7 @@ int main()
 
 	cv::UMat bgr_frame;
 	Segmentation seg;
-
+	Fingers fingers;
 	//set the reference frame for do the segmentation
 	cap >> bgr_frame;
 	seg.setReferenceFrame(bgr_frame);
@@ -40,10 +42,20 @@ int main()
 
 		//identify the bigger contour in the segmentation image
 		cv::imshow("contours", seg.identifyContours());
-
-
+		if (!seg.contours.empty()) {
+			//cv::imshow("fingers", fingers.getFingerPoints(bgr_frame, seg.largestComp, seg.contours));
+			cv::imshow("fingers", fingers.getFingerPoints(bgr_frame, seg));
+		}
+		else {
+			cv::imshow("fingers", bgr_frame);
+		}
+		
+		
 		char c = cv::waitKey(10);
 		if (c == 27) break;
+		if (c == 49) {
+			seg.setReferenceFrame(bgr_frame);
+		}
 	}
 
 	cap.release();
