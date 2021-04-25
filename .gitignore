@@ -39,4 +39,4 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
-.vs/
+v16/
