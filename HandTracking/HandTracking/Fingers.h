@@ -7,7 +7,7 @@
 class Fingers
 {
 private:
-	std::vector<cv::Vec4i> points_hand;
+	std::vector<cv::Point> points_hand;
 	cv::Scalar color_blue = cv::Scalar(255, 0, 0);
 	cv::Scalar color_green = cv::Scalar(0, 255, 0);
 	cv::Scalar color_red = cv::Scalar(0, 0, 255);

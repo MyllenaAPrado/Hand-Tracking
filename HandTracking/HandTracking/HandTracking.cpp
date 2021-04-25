@@ -25,6 +25,7 @@ int main()
 	cv::UMat bgr_frame;
 	Segmentation seg;
 	Fingers fingers;
+
 	//set the reference frame for do the segmentation
 	cap >> bgr_frame;
 	seg.setReferenceFrame(bgr_frame);
@@ -42,17 +43,16 @@ int main()
 
 		//identify the bigger contour in the segmentation image
 		cv::imshow("contours", seg.identifyContours());
-		if (!seg.contours.empty()) {
-			//cv::imshow("fingers", fingers.getFingerPoints(bgr_frame, seg.largestComp, seg.contours));
+		if (!seg.getcontours().empty()) {
 			cv::imshow("fingers", fingers.getFingerPoints(bgr_frame, seg));
 		}
 		else {
 			cv::imshow("fingers", bgr_frame);
 		}
-		
-		
+				
 		char c = cv::waitKey(10);
 		if (c == 27) break;
+		//set a new reference frame for segmentation
 		if (c == 49) {
 			seg.setReferenceFrame(bgr_frame);
 		}

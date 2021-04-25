@@ -14,19 +14,21 @@ private:
 	cv::Scalar color_blue = cv::Scalar(255, 0, 0);
 	cv::Scalar color_green = cv::Scalar(0, 255, 0);
 	cv::Scalar color_red = cv::Scalar(0, 0, 255);
-
-
-public:
 	std::vector<std::vector<cv::Point>> contours;
 	int largestComp = 0;
 
+
+public:
 	inline cv::UMat getHandSegmentation() {
-		return segment_hand;
+		return this->segment_hand;
 	}
-	inline void setReferenceFrame(cv::UMat frame) {
-		cv::GaussianBlur(frame, this->reference_frame, cv::Size(3, 3), 0);
-		cv::cvtColor(this->reference_frame, this->reference_frame, cv::COLOR_BGR2GRAY);
+	inline std::vector<std::vector<cv::Point>> getcontours() {
+		return this->contours;
 	}
+	inline int geIndexLargContour() {
+		return this->largestComp;
+	}
+	void setReferenceFrame(cv::UMat frame);
 	void identifyMovingHand(cv::UMat frame);
 	cv::UMat identifyContours();
 

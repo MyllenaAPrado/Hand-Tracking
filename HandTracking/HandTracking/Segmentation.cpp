@@ -1,5 +1,10 @@
 #include "Segmentation.h"
 
+void Segmentation::setReferenceFrame(cv::UMat frame) {
+	cv::GaussianBlur(frame, this->reference_frame, cv::Size(3, 3), 0);
+	cv::cvtColor(this->reference_frame, this->reference_frame, cv::COLOR_BGR2GRAY);
+}
+
 void Segmentation::identifyMovingHand(cv::UMat frame) {
 
 	cv::UMat processing_frame;
