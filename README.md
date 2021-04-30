@@ -3,6 +3,7 @@
  * Windows 10
  * C++14
  * Opencv 4.5.1
+ * Visual Studio 2019
  
 ## Execution
 ### Requirement
