@@ -1,4 +1,6 @@
 # Hand-Tracking
+Project of a hand tracking with c++ and OpenCV. The project identify one point in each finger's point and the center of hand. The program needs a clear background in the capture image. And the principal object moves in the image has to be the hand.
+
 ## Development environment
  * Windows 10
  * C++14
