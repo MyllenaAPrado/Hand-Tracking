@@ -14,6 +14,7 @@ private:
 	cv::Scalar color_blue = cv::Scalar(255, 0, 0);
 	cv::Scalar color_green = cv::Scalar(0, 255, 0);
 	cv::Scalar color_red = cv::Scalar(0, 0, 255);
+	cv::Scalar color_black = cv::Scalar(0, 0, 0);
 	std::vector<std::vector<cv::Point>> contours;
 	int largestComp = 0;
 

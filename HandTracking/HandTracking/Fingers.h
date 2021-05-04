@@ -17,7 +17,7 @@ private:
 public:
 
 	cv::UMat getFingerPoints(cv::UMat frame, Segmentation seg);
-	std::vector<cv::Point> averagePointers(std::vector<cv::Point> pointers);
+	std::vector<cv::Point> averagePointers(std::vector<cv::Point> pointers, std::vector<cv::Point> pointers_between_hand);
 	double PointDistance(cv::Point a, cv::Point b);
 	
 };

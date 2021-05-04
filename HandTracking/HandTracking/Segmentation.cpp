@@ -15,7 +15,7 @@ void Segmentation::identifyMovingHand(cv::UMat frame) {
 
 	//calcule the diference of pixels
 	cv::absdiff(this->reference_frame, this->current_frame, this->segment_hand);
-	cv::threshold(this->segment_hand, this->segment_hand, 35, 255, cv::THRESH_BINARY);
+	cv::threshold(this->segment_hand, this->segment_hand, 30, 255, cv::THRESH_BINARY);
 	cv::dilate(this->segment_hand, this->segment_hand, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
 
 }
@@ -29,7 +29,7 @@ cv::UMat Segmentation::identifyContours() {
 	
 	//find all contours in image
 	cv::findContours(this->segment_hand, this->contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
-	cv::UMat imgContours(this->segment_hand.size(), CV_8UC3, this->color_red);
+	cv::UMat imgContours(this->segment_hand.size(), CV_8UC3, this->color_black);
 
 	//identify the bigger contour
 	for (int idx = 0; idx >= 0; idx = hierarchy[idx][0])
@@ -47,8 +47,8 @@ cv::UMat Segmentation::identifyContours() {
 	}
 
 	//draw contour in image
-	drawContours(imgContours, this->contours, this->largestComp, this->color_green, cv::FILLED, cv::LINE_8, hierarchy);
-
+	//drawContours(imgContours, this->contours, this->largestComp, this->color_green, cv::FILLED, cv::LINE_8, hierarchy);
+	
 	//draw the retangule of hand in the image
 	std::vector<std::vector<cv::Point>> hull(this->contours.size());
 	cv::convexHull(this->contours[this->largestComp], hull[0]);

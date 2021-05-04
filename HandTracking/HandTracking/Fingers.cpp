@@ -8,21 +8,27 @@ cv::UMat Fingers::getFingerPoints(cv::UMat frame, Segmentation seg) {
 	this->frame = frame;
 	std::vector<cv::Vec4i> convexityDefects(contours.size());
 	std::vector<cv::Point> pointers(contours.size());
+	std::vector<cv::Point> pointers_between_hand(contours.size());
 	std::vector<cv::Rect> boundRect(contours.size());
+	cv::Point point(1000000,0);
 	std::vector<int> hull_ints;
-	int thresholdRect = 20;
+	int threshold_points = 10;
 
 	//get the points interception between convexHull and contours
 	cv::convexHull(contours[largestComp], hull_ints, false);
+	//drawContours(this->frame, hull_ints, (int)0, this->color_blue);
+
+	std::vector<std::vector<cv::Point>> hull(contours.size());
+	cv::convexHull(contours[largestComp], hull[0]);
 	if (hull_ints.size() > 3)
 		cv::convexityDefects(cv::Mat(contours[largestComp]), hull_ints, convexityDefects);
 
 	//get the rectangulo around the hand
 	boundRect[0] = cv::boundingRect(contours[largestComp]);
-	int yCenter = (boundRect[0].tl().y + boundRect[0].br().y) / 2;
-	int xCenter = (boundRect[0].tl().x + boundRect[0].br().x) / 2;
-	cv::Point pointCenter(xCenter, yCenter+ thresholdRect);
-	cv::rectangle(this->frame, boundRect[0].tl(), boundRect[0].br(), this->color_blue, 2);
+	int yCenter = boundRect[0].y + (boundRect[0].height / 2);
+	int xCenter = boundRect[0].x + (boundRect[0].width / 2);
+	cv::Point pointCenter(xCenter, yCenter + 90);
+	//cv::rectangle(this->frame, boundRect[0].tl(), boundRect[0].br(), this->color_blue, 2);
 
 	//check if the point has the desired angle 
 	for (size_t i = 0; i < convexityDefects.size(); i++)
@@ -30,62 +36,70 @@ cv::UMat Fingers::getFingerPoints(cv::UMat frame, Segmentation seg) {
 		cv::Point p1 = contours[largestComp][convexityDefects[i][0]];
 		cv::Point p2 = contours[largestComp][convexityDefects[i][1]];
 		cv::Point p3 = contours[largestComp][convexityDefects[i][2]];
-		cv::line(this->frame, p1, p3, this->color_blue, 2);
-		cv::line(this->frame, p3, p2, this->color_green, 2);
-
+		
+		//cv::line(this->frame, p1, p3, this->color_blue, 2);
+		//cv::line(this->frame, p3, p2, this->color_green, 2);
 		//filter points above the y of rectangulo center
-		if (p2.y < (yCenter + thresholdRect)) {
+		if ((p3.y - p2.y) > (threshold_points) && (p3.y < (yCenter+ threshold_points)) && (p2.y < (yCenter + threshold_points)) && (p1.y < (yCenter + threshold_points))) {
 			//calcule angle
-			double teta = atan2((double(p3.x) - double(p2.x)), (double(p2.y) - double(p3.y)));
-			double beta = atan2((double(p2.x) - double(p1.x)), (double(p2.y) - double(p1.y)));
+			double teta = atan2((double(p3.x) - double(p1.x)), (double(p3.y) - double(p1.y)));
+			double beta = atan2((double(p2.x) - double(p3.x)), (double(p2.y) - double(p3.y)));
 			double alpha = teta + beta;
 			alpha = (alpha * 180) / this->PI;
 
-			if (alpha <= 60) {
-				cv::circle(this->frame, p2, 10, this->color_red);
-				pointers.push_back(p2);
+			if (alpha <= 90) {
+				//cv::circle(this->frame, p2, 10, this->color_red);
+				//cv::circle(this->frame, p1, 10, this->color_green);
+				//cv::circle(this->frame, p2, 10, this->color_blue);
+				//cv::circle(this->frame, p3, 10, this->color_red);
+				pointers.push_back(p1);
+				if (p2.x < point.x) {
+					point = p2;
+				}
+				pointers_between_hand.push_back(p3);
 			}
 		}
 
 	}
+	pointers.push_back(point);
 
-	//filter the nearby points with average and get the final points of hand
-	std::vector<cv::Point> pointsFinger = averagePointers(pointers);	
-	for (int y = 0; y < int(pointsFinger.size()); y++) {
-		if (pointsFinger[y].x != 0 && pointsFinger[y].y != 0) {
-			cv::circle(this->frame, pointsFinger[y], 20, this->color_green);
-			cv::line(this->frame, pointCenter, pointsFinger[y], this->color_green, 2);
+	//filter the nearby points with average and get the final points of 
+	if (!pointers.empty()) {
+		for (int y = 1; y < int(pointers.size()); y++) {
+			if (pointers[y].x != 0 && pointers[y].y != 0) {
+				cv::circle(this->frame, pointers[y], 10, this->color_green);
+				cv::line(this->frame, pointCenter, pointers[y], this->color_green, 2);
+				cv::circle(this->frame, pointers[1], 10, this->color_red);
+			}
 		}
+
 	}
-	this->points_hand = pointsFinger;
+	cv::flip(this->frame, this->frame, 1);
 	return this->frame;
 }
 
-std::vector<cv::Point> Fingers::averagePointers(std::vector<cv::Point> pointers) {
-
-	double thresholdDistance = 50;
+std::vector<cv::Point> Fingers::averagePointers(std::vector<cv::Point> pointers, std::vector<cv::Point> pointers_between_hand) {
+	double thresholdDistance = 20;
 	cv::Point referencePoint, actualPoint;
 	std::vector<cv::Point> averagePointers(pointers.size());
 	
 	//check the distance between points and make the average
-	if (!pointers.empty()) {
-		referencePoint = pointers[0];
-		int averageX = pointers[0].x;
-		int quantityNumber = 1;
+	referencePoint = pointers[0];
+	int averageX = pointers[0].x;
+	int quantityNumber = 1;
 
-		for (int i = 1; i < int(pointers.size()); i++) {
-			actualPoint = pointers[i];
-			if (PointDistance(referencePoint, actualPoint) < thresholdDistance) {
-				averageX += actualPoint.x;
-				quantityNumber++;
-			}
-			else {
-				cv::Point point((averageX/ quantityNumber), referencePoint.y);
-				averagePointers.push_back(point);
-				referencePoint = actualPoint;
-				averageX = actualPoint.x;
-				quantityNumber = 1;
-			}
+	for (int i = 1; i < int(pointers.size()); i++) {
+		actualPoint = pointers[i];
+		if (PointDistance(referencePoint, actualPoint) < thresholdDistance) {
+			averageX += actualPoint.x;
+			quantityNumber++;
+		}
+		else {
+			cv::Point point((averageX / quantityNumber), referencePoint.y);
+			averagePointers.push_back(point);
+			referencePoint = actualPoint;
+			averageX = actualPoint.x;
+			quantityNumber = 1;
 		}
 	}
 	return averagePointers;

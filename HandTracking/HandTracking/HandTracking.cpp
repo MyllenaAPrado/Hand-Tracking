@@ -8,9 +8,9 @@
 int main()
 {
 
-	cv::namedWindow("capture", cv::WINDOW_AUTOSIZE);
-	cv::namedWindow("segmentation", cv::WINDOW_AUTOSIZE);
-	cv::namedWindow("contours", cv::WINDOW_AUTOSIZE);
+	//cv::namedWindow("capture", cv::WINDOW_AUTOSIZE);
+	//cv::namedWindow("segmentation", cv::WINDOW_AUTOSIZE);
+	//cv::namedWindow("contours", cv::WINDOW_AUTOSIZE);
 	cv::namedWindow("fingers", cv::WINDOW_AUTOSIZE);
 
 	cv::VideoCapture cap;
@@ -35,14 +35,16 @@ int main()
 		cap >> bgr_frame;
 		if (bgr_frame.empty()) break;
 
-		cv::imshow("capture", bgr_frame);
+		//cv::imshow("capture", bgr_frame);
 
 		//identify the pixels who change between the current frame and the reference frame
 		seg.identifyMovingHand(bgr_frame);
-		cv::imshow("segmentation", seg.getHandSegmentation());
+		seg.getHandSegmentation();
+		seg.identifyContours();
+		//cv::imshow("segmentation", seg.getHandSegmentation());
 
 		//identify the bigger contour in the segmentation image
-		cv::imshow("contours", seg.identifyContours());
+		//cv::imshow("contours", seg.identifyContours());
 		if (!seg.getcontours().empty()) {
 			cv::imshow("fingers", fingers.getFingerPoints(bgr_frame, seg));
 		}
