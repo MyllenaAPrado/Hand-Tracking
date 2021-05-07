@@ -8,56 +8,52 @@
 int main()
 {
 
-	//cv::namedWindow("capture", cv::WINDOW_AUTOSIZE);
-	//cv::namedWindow("segmentation", cv::WINDOW_AUTOSIZE);
-	//cv::namedWindow("contours", cv::WINDOW_AUTOSIZE);
-	cv::namedWindow("fingers", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Hand tracking", cv::WINDOW_AUTOSIZE);
 
 	cv::VideoCapture cap;
 	cap.open(0);
 
 	if (!cap.isOpened())
 	{
-		std::cerr << "Couldn't op en capture." << std::endl;
+		std::cerr << "Couldn't open capture." << std::endl;
 		return -1;
 	}
 
 	cv::UMat bgr_frame;
-	Segmentation seg;
+	Segmentation segmentation;
 	Fingers fingers;
 
 	//set the reference frame for do the segmentation
 	cap >> bgr_frame;
-	seg.setReferenceFrame(bgr_frame);
+	segmentation.setReferenceFrame(bgr_frame);
 
 	for (;;)
 	{
 		cap >> bgr_frame;
 		if (bgr_frame.empty()) break;
 
-		//cv::imshow("capture", bgr_frame);
-
 		//identify the pixels who change between the current frame and the reference frame
-		seg.identifyMovingHand(bgr_frame);
-		seg.getHandSegmentation();
-		seg.identifyContours();
-		//cv::imshow("segmentation", seg.getHandSegmentation());
+		segmentation.identifyMovingHand(bgr_frame);
+		segmentation.getHandSegmentation();
+		segmentation.identifyContours();
 
-		//identify the bigger contour in the segmentation image
-		//cv::imshow("contours", seg.identifyContours());
-		if (!seg.getcontours().empty()) {
-			cv::imshow("fingers", fingers.getFingerPoints(bgr_frame, seg));
+		if (!segmentation.getcontours().empty()) {
+			cv::imshow("Hand tracking", fingers.getFingerPoints(bgr_frame, segmentation));
 		}
 		else {
-			cv::imshow("fingers", bgr_frame);
+			cv::flip(bgr_frame, bgr_frame, 1);
+			cv::imshow("Hand tracking", bgr_frame);
 		}
 				
 		char c = cv::waitKey(10);
-		if (c == 27) break;
+
 		//set a new reference frame for segmentation
 		if (c == 49) {
-			seg.setReferenceFrame(bgr_frame);
+			segmentation.setReferenceFrame(bgr_frame);
 		}
+
+		if (c == 27) break;
+
 	}
 
 	cap.release();

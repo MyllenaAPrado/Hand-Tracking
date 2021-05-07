@@ -39,6 +39,8 @@ cv::UMat Segmentation::identifyContours() {
 		}
 		const std::vector<cv::Point>& c = this->contours[idx];
 		double area = fabs(cv::contourArea(cv::Mat(c)));
+
+		
 		if (area > maxArea)
 		{
 			maxArea = area;
@@ -46,12 +48,10 @@ cv::UMat Segmentation::identifyContours() {
 		}
 	}
 
-	//draw contour in image
-	//drawContours(imgContours, this->contours, this->largestComp, this->color_green, cv::FILLED, cv::LINE_8, hierarchy);
-	
 	//draw the retangule of hand in the image
 	std::vector<std::vector<cv::Point>> hull(this->contours.size());
 	cv::convexHull(this->contours[this->largestComp], hull[0]);
-	drawContours(imgContours, hull, (int)0, cv::Scalar(250.0, 0.0, 0.0));
+	drawContours(imgContours, hull, (int)0, this->color_blue);
+
 	return imgContours;
 }
