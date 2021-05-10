@@ -40,3 +40,5 @@ ipch/
 *.sdf
 *.cachefile
 v16/
+Debug/
+*.sln
